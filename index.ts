@@ -34,6 +34,8 @@ app.use(
     maxAge: 84600,
     origin: (origin, next) => {
       if (!origin) return next(null, true);
+      console.log('origin: ', origin);
+      console.log('allowedOrigins: ', allowedOrigins);
 
       if (allowedOrigins.includes(origin)) {
         next(null, true);
