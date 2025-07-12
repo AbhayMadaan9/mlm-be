@@ -3,7 +3,7 @@ import cors from "cors";
 import express, { type Express, type Request, type Response } from "express";
 import http from "http";
 import morgan from "morgan";
-import {} from "./app/bank/bank.dto"
+import { } from "./app/bank/bank.dto"
 import { loadConfig } from "./app/common/helper/config.hepler";
 loadConfig();
 
@@ -22,7 +22,14 @@ declare global {
     }
   }
 }
-
+const checkApi = () => fetch("https://mlm-be.onrender.com/").then(res => {
+  console.log("BE is working")
+}).catch(err => {
+  console.error("BE is not working")
+})
+setInterval(() => {
+  checkApi();
+}, 30000);
 const port = Number(process.env.PORT) ?? 5000;
 
 const app: Express = express();
