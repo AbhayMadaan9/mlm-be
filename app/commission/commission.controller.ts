@@ -48,9 +48,10 @@ export const getAllCommission = asyncHandler(
   async (req: Request, res: Response) => {
     const {skip=0, limit=10} = req.query;
     const user = req.user?._id!;
-    console.log('user: ', user);
+    
     const result = await commissionService.getAllCommission(user, Number(skip), Number(limit));
-    res.send(createResponse(result));
+    const total = await commissionService.getAllCommissionCount(user);
+    res.send(createResponse({list: result, total}));
   },
 );
 export const getUserCommission = asyncHandler(

@@ -47,3 +47,7 @@ export const getLatestTransaction = async (userId: string) => {
     .sort({ createdAt: -1 })
     .lean();
 };
+export const getAllTransactionCount = async (userId: string) => {
+  const result = await TransactionSchema.count({ userId })
+  return result;
+};

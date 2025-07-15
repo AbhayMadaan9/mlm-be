@@ -49,11 +49,25 @@ export const inviteUser = asyncHandler(async (req: Request, res: Response) => {
       // Send email
       await sendEmail({
         to: email,
-        subject: "Welcome to SKGD",
-        html: `<p>You have purchased our product word 2000 rs. Kindly confirm your purchase by clicking the following <a href="${url}">LINK</a> to join our SKGD network.
-        Regards
-        </p>`,
+        subject: "Welcome to SRGD",
+        html: `
+    <div style="font-family: Arial, sans-serif; line-height: 1.6;">
+      <p>
+        You have purchased our product worth ₹2000. Kindly confirm your purchase by clicking the following 
+        <a href="${url}" target="_blank" style="color: #1a73e8;">LINK</a> to join our SRGD network.
+      </p>
+      <p>Regards,<br/>Team SRGD</p>
+            <div style="text-align: left; margin-top: 15px;">
+        <img 
+          src="https://res.cloudinary.com/ddruijvbn/image/upload/v1752575905/mlmlogo_h66lo2.jpg" 
+          alt="SRGD Logo" 
+          style="max-width: 100px; height: auto;"
+        />
+      </div>
+    </div>
+  `,
       });
+
 
       return user;
     }),
@@ -206,16 +220,16 @@ export const updateUser = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const editUser = asyncHandler(async (req: Request, res: Response) => {
-    const {name, bankDetails=null} = req.body;
+  const { name, bankDetails = null } = req.body;
   console.log('name: ', name);
-  const result = await userService.editUser(req.params.id, {name});
-  if(bankDetails){
+  const result = await userService.editUser(req.params.id, { name });
+  if (bankDetails) {
     console.log('bankDetails: ', bankDetails);
-    if(result?.bankDetails){
+    if (result?.bankDetails) {
       await bankService.editBank(result.bankDetails, bankDetails)
     } else {
-    const bank =  await bankService.createBank(bankDetails);
-    await userService.editUser(result!._id, {bankDetails: bank._id})
+      const bank = await bankService.createBank(bankDetails);
+      await userService.editUser(result!._id, { bankDetails: bank._id })
     }
   }
   res.send(createResponse(result, "User updated sucssefully"));
@@ -236,15 +250,11 @@ export const getAllUser = asyncHandler(async (req: Request, res: Response) => {
   const limit = req.query.limit
     ? parseInt(req.query.limit as string)
     : undefined;
-  const result = await userService.getAllUser({}, { skip, limit });
-  if (skip || limit) {
-    const count = await userService.countItems();
-    res.send(
-      createResponse(result),
-    );
-    return;
-  }
-  res.send(createResponse(result));
+  const search = req.query?.search ? req.query.search.toString().trim() : ''
+  const result = await userService.getAllUser({ search }, {}, { skip, limit });
+
+  const total = await userService.countItems();
+  res.send(createResponse({ list: result, total }));
 });
 
 export const login = asyncHandler(async (req: Request, res: Response) => {
@@ -260,15 +270,14 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
     subject: "EMAIL verification",
     html: `<p>${otp}</p>`,
   });
-  res.send(createResponse({otp}));
+  res.send(createResponse({ otp }));
 });
 
 export const verifyOtp = asyncHandler(async (req: Request, res: Response) => {
 
   const { otp, email } = req.body;
   const user = await userService.getUserByEmail(email, "-password");
-  if(!user)
-  {
+  if (!user) {
     throw createHttpError(400, { message: `User with email ${email} not found` })
   }
   if (user?.otp != otp) {
@@ -288,7 +297,7 @@ export const getUserInfo = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const getUserProfile = asyncHandler(async (req: Request, res: Response) => {
-  const user = await userService.getUserByIdWithBankDetails(req.user?._id!,{
+  const user = await userService.getUserByIdWithBankDetails(req.user?._id!, {
     password: false,
   });
   res.send(createResponse(user));

@@ -43,7 +43,13 @@ export const getAllCommission = async (userId: string, skip: number, limit: numb
   const result = await CommissionSchema.find({earnerId: userId}).populate({
       path: "referredUserId",
       select: "name"
-    }).skip(skip).limit(limit).lean();
+    }).skip(skip).limit(limit).sort({
+      createdAt: -1
+    }).lean();
+  return result;
+};
+export const getAllCommissionCount = async (userId: string) => {
+  const result = await CommissionSchema.count({earnerId: userId});
   return result;
 };
 

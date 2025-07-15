@@ -55,7 +55,8 @@ export const getAllTransaction = asyncHandler(
     }
     const {skip=0, limit=10} = req.query;
     const result = await transactionService.getAllTransaction(req.user._id, Number(skip), Number(limit));
-    res.send(createResponse(result));
+    const total = await transactionService.getAllTransactionCount(req.user._id)
+    res.send(createResponse({list: result, total}));
   },
 );
 export const getUserBalance = asyncHandler(

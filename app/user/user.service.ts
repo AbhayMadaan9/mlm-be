@@ -50,10 +50,19 @@ export const getUserByIdWithBankDetails = async (
 };
 
 export const getAllUser = async (
+  condition: Record<string, any>,
   projection?: ProjectionType<IUser>,
   options?: QueryOptions<IUser>,
 ) => {
-  const result = await UserSchema.find({}, projection, options).lean();
+  
+  if('search' in condition)
+  {
+    condition['name'] =  {$regex: new RegExp(condition['search'], 'i') };
+    delete condition['search']
+  }
+  const result = await UserSchema.find(condition, projection, options).sort({
+    createdAt: -1
+  }).lean();
   return result;
 };
 export const getUserByEmail = async (
